@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('phone_number'); 
             $table->string('profile_image_url');
             $table->string('identity_image_url');
             $table->string('date_of_birth');

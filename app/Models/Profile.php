@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
+    use HasFactory; 
+
     protected $fillable = [
         'first_name',
         'last_name',
-        'phone_number',
         'profile_image_url',
         'identity_image_url',
         'date_of_birth',
+
     ];
 }
