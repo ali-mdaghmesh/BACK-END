@@ -10,3 +10,4 @@ Route::get('/user', function (Request $request) {
 Route::get('/status', function () {
     return response()->json(['status' => 'API is running']);
 });
+
