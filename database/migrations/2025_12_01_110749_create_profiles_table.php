@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('phone_number'); 
-            $table->string('image_url'); 
+            $table->string('profile_picture_url');
+            $table->string('identity_image_url');
             $table->string('date_of_birth');
         });
     }
