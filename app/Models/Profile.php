@@ -7,14 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
-    use HasFactory; 
+    use HasFactory;
+    protected $guarded = ['id'];
 
-    protected $fillable = [
-        'first_name',
-        'last_name',
-        'profile_image_url',
-        'identity_image_url',
-        'date_of_birth',
-
-    ];
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

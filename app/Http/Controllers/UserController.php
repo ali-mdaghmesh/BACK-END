@@ -4,23 +4,73 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    
-    function register(Request $request) {
+    function register(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:15|unique:users,phone_number',
             'password' => 'required|string|min:8|confirmed',
+            'first_name'=>'required|string|max:255',
+            'last_name'=>'required|string|max:255',
+            'date_of_birth'=>'required|date',
+            'profile_image' => 'required|image|mimes:webp,jpg,jpeg,gif|max:10000',
+             'identity_image' => 'required|image|mimes:webp,jpg,jpeg,gif|max:10000',
+             'role'=>'required|string|max:50',
         ]);
-        $user=User::create([
-           
-        ]); 
 
+        $user = User::create([
+            'name' => $request->name,
+            'phone_number' => $request->phone_number,
+            'password' => Hash::make($request->password),
+        ]);
+
+         $profileImagePath = $request->file('profile_image')->store('profiles', 'public');
+        $identityImagePath = $request->file('identity_image')->store('identities', 'public');
+
+        $profile = $user->profile()->create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'date_of_birth' => $request->date_of_birth,
+            'profile_image' => $profileImagePath,
+            'identity_image' => $identityImagePath,
+            'role' => $request->role
+        ]);
+
+        return response()->json([
+            'message' => 'User registered successfully',
+        ], 201);
     }
 
+    function login(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
+        if (!Auth::attempt($request->only('phone_number', 'password'))) {
+            return response(['message' => 'Invalid login details'], 401);
+        }
 
+        $user = User::where('phone_number', $request->phone_number)->firstOrFail();
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successfully',
+         ], 200);
+    }
+
+    function logout(Request $request)
+    {
+
+        $request->user()->tokens()->delete();
+
+        return response()->json(['message' => 'Logout successfully'], 200);
+    }
 }

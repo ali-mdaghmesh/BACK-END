@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('profile_image_url');
             $table->string('identity_image_url');
             $table->string('date_of_birth');
+            $table->string('role');
         });
     }
 
