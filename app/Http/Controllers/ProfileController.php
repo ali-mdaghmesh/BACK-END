@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -21,7 +22,8 @@ class ProfileController extends Controller
      */
     public function show()
     {
-        $profile = auth()->user()->profile;
+        
+        $profile = Auth::user()->profile;
 
         return response()->json([
             'profile' => $profile,
@@ -32,7 +34,7 @@ class ProfileController extends Controller
 
     public function update(UpdateProfileRequest $request)
     {
-        $profile = auth()->user()->profile;
+        $profile = Auth::user()->profile;
         $data = $request->validated();
 
         if ($request->hasFile('profile_image')) {
@@ -52,11 +54,10 @@ class ProfileController extends Controller
         ], 200);
     }
 
-    public function destroy()
-    {
-        $profile = auth()->user()->profile;
-        $profile->delete();
-
+    public function destroy(Request $request)
+    {   $user=$request->user();
+        $user->tokens()->delete();
+        $user->delete();
         return response()->json(['message' => 'Profile deleted successfully'], 200);
     }
 

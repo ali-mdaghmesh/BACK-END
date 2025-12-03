@@ -12,7 +12,7 @@ Route::get('/user', function (Request $request) {
 
 Route::Post('/register', [UserController::class, 'register']);
 Route::Post('/login', [UserController::class, 'login']);
-Route::Post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::middleware("auth:sanctum")->group(function () {
 
