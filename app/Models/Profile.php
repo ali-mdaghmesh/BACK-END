@@ -10,7 +10,15 @@ class Profile extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
+    public function apartments()
+    {
+
+        return $this->hasMany(Apartment::class, 'owner_id', 'user_id');
+
+    }
+
 }

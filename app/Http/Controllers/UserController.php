@@ -11,19 +11,19 @@ class UserController extends Controller
 {
     function register(Request $request)
     {
-        
-       $request->validate([
+
+        $request->validate([
             'phone_number' => 'required|string|max:15|unique:users,phone_number',
             'password' => 'required|string|min:8|confirmed',
-            'first_name'=>'required|string|max:255',
-            'last_name'=>'required|string|max:255',
-            'date_of_birth'=>'required|date',
-            'profile_image_url' => 'required|image|mimes:webp,jpg,jpeg,gif|max:10000',
-             'identity_image_url' => 'required|image|mimes:webp,jpg,jpeg,gif|max:10000',
-             'role'=>'required|string|max:50',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'date_of_birth' => 'required|date',
+            'profile_image_url' => 'required|image|mimes:webp,jpg,jpeg,png,gif|max:10000',
+            'identity_image_url' => 'required|image|mimes:webp,jpg,jpeg,png,gif|max:10000',
+            'role' => 'required|string|max:50',
         ]);
 
-      
+
         $user = User::create([
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
@@ -31,7 +31,7 @@ class UserController extends Controller
 
         $profileImagePath = $request->file('profile_image_url')->store('profiles', 'public');
         $identityImagePath = $request->file('identity_image_url')->store('identities', 'public');
-        
+
         $profile = $user->profile()->create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
@@ -63,14 +63,14 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Login successfully',
-            'token'=>$token
-         ], 200);
+            'token' => $token
+        ], 200);
     }
 
     function logout(Request $request)
     {
 
-        $request->user()->currentAccessToken()->delete(); 
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logout successfully'], 200);
     }
