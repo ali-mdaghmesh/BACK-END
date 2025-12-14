@@ -5,7 +5,6 @@ use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ApartmentImagesController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReservationsController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
@@ -48,10 +47,11 @@ Route::middleware(["auth:sanctum", "verified"])->group(function () {
     Route::put('/owner/reservations/edit/handle/{id}', [OwnerController::class, 'handleEditeReservation']);
     Route::get('/owner/reservations/{id}', [OwnerController::class, 'getReservations']); 
     Route::get('/owner/reservatoins/pending/{id}', [OwnerController::class, 'getPendingReservations']);
-    Route::get('/owner/reservations/canceled/{id}', [OwnerController::class, 'getCanceledReservations']);
-    Route::get('/owner/reservations/accepted/{id}', [OwnerController::class, 'getAcceptedReservations']);
+    Route::get('/owner/reservations/canceled/{id}', [OwnerController::class, 'getCancelledReservations']);
+    Route::get('/owner/reservations/approved/{id}', [OwnerController::class, 'getApprovedReservations']);
     Route::get('/owner/reservations/rejected/{id}', [OwnerController::class, 'getRejectedReservations']);
     Route::get('/owner/reservations/edit/{id}', [OwnerController::class, 'getEditReservations']);
+    Route::get('/owner/reservations/cancel-requested/{id}', [OwnerController::class, 'getCancelRequestedReservations']);
 
 
 
