@@ -47,7 +47,7 @@ class OwnerController extends Controller
     function handleCancelReservation(Request $request,$reservation_id){
         $user=Auth::user(); 
         $reservation=Reservation::findOrFail($reservation_id); 
-        if($reservation->status==('cancel_requested'||'edit_requested')){
+        if($reservation->status===('cancel_requested'||'edit_requested')){
             return response()->json(['message'=>'your previous request is still pending'],400);
         }
         if($reservation->status!='cancelled'){
