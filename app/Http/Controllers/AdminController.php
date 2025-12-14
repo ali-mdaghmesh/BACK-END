@@ -18,7 +18,7 @@ class AdminController extends Controller
   $users=User::with('profile')->where('phone_number','like','%'.$query.'%')
                             ->orWhere('first_name','like','%'.$query.'%')
                             ->orWhere('last_name','like','%'.$query.'%')
-                           -> orWhere('id','like','%'.$query.'%')->get();
+                            ->get();
     
     if(!$users){
         return response()->json(['message'=>'no sush users found'],404);  

@@ -3,7 +3,10 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ApartmentImagesController;
+use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReservationsController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Http\Request;
@@ -34,6 +37,21 @@ Route::middleware(["auth:sanctum", "verified"])->group(function () {
     Route::put('apartmentsImages/{id}', [ApartmentImagesController::class, 'update']);
     Route::delete('apartmentsImages/{id}', [ApartmentImagesController::class, 'destroy']);
     Route::get('apartmentsImages/{id}', [ApartmentImagesController::class, 'show']);
+   
+    Route::get('/tenant/reservations', [TenantController::class, 'getTenantReservations']);
+    Route::post('/tenant/reservations/create', [TenantController::class, 'createReservation']);        
+    Route::put('/tenant/reservations/edit/{id}', [TenantController::class, 'editReservation']);
+    Route::put('/tenant/reservations/cancel/{id}', [TenantController::class, 'cancelReservation']);
+
+    Route::put('/owner/reservations/pending/handle/{id}', [OwnerController::class, 'handlePendingReservation']);
+    Route::put('/owner/reservations/cancel/handle/{id}', [OwnerController::class, 'handleCancelReservation']);
+    Route::put('/owner/reservations/edit/handle/{id}', [OwnerController::class, 'handleEditeReservation']);
+    Route::get('/owner/reservations/{id}', [OwnerController::class, 'getReservations']); 
+    Route::get('/owner/reservatoins/pending/{id}', [OwnerController::class, 'getPendingReservations']);
+    Route::get('/owner/reservations/canceled/{id}', [OwnerController::class, 'getCanceledReservations']);
+    Route::get('/owner/reservations/accepted/{id}', [OwnerController::class, 'getAcceptedReservations']);
+    Route::get('/owner/reservations/rejected/{id}', [OwnerController::class, 'getRejectedReservations']);
+    Route::get('/owner/reservations/edit/{id}', [OwnerController::class, 'getEditReservations']);
 
 
 

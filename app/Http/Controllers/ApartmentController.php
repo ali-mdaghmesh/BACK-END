@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Apartment;
-
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,12 +35,6 @@ class ApartmentController extends Controller
             ], 403);
         }
 
-        if (!$user->profile->verified) {
-            return response()->json([
-                'message' => 'Your profile is not verified. You cannot create apartments.'
-            ], 403);
-        }
-
         $validated = $request->validate([
             'city' => 'required|string|max:255',
             'province' => 'required|string|max:255',
@@ -51,7 +45,7 @@ class ApartmentController extends Controller
 
 
         $validated['owner_id'] = $user->id;
-     $apartment = Apartment::create(    $validated);
+     $apartment = Apartment::create($validated);
 
         return response()->json([
             'message' => 'Apartment created successfully',
@@ -165,4 +159,9 @@ class ApartmentController extends Controller
         ], 200);
 
     }
+
+    
+
+    
+
 }
