@@ -127,7 +127,7 @@ class OwnerController extends Controller
         if($user->id!=$apartment->owner_id){
             return response()->json(['message'=>'you can only view your apartments reservations'],403);
         }
-        $reservations=$apartment->reservations()->with('user.profile')->get();
+        $reservations=$apartment->reservations()->get();
 
         return response()->json(['reservations'=>$reservations],200);
     }
@@ -138,7 +138,7 @@ class OwnerController extends Controller
         if($user->id!=$apartment->owner_id){
             return response()->json(['message'=>'you can only view your apartments reservations'],403);
         }
-        $reservations=$apartment->reservations()->where('status','approved')->with('user.profile')->get();
+        $reservations=$apartment->reservations()->where('status','approved')->get();
 
         return response()->json(['reservations'=>$reservations],200);
     }
@@ -149,7 +149,7 @@ class OwnerController extends Controller
         if($user->id!=$apartment->owner_id){
             return response()->json(['message'=>'you can only view your apartments reservations'],403);
         }
-        $reservations=$apartment->reservations()->where('status','cancelled')->with('user.profile')->get();
+        $reservations=$apartment->reservations()->where('status','cancelled')->get();
 
         return response()->json(['reservations'=>$reservations],200);
     }
@@ -160,7 +160,7 @@ class OwnerController extends Controller
         if($user->id!=$apartment->owner_id){
             return response()->json(['message'=>'you can only view your apartments reservations'],403);
         }
-        $reservations=$apartment->reservations()->where('status','pending')->with('user.profile')->get();
+        $reservations=$apartment->reservations()->where('status','pending')->get();
 
         return response()->json(['reservations'=>$reservations],200);
     }
@@ -171,7 +171,7 @@ class OwnerController extends Controller
         if($user->id!=$apartment->owner_id){
             return response()->json(['message'=>'you can only view your apartments reservations'],403);
         }
-        $reservations=$apartment->reservations()->where('status','rejected')->with('user.profile')->get();
+        $reservations=$apartment->reservations()->where('status','rejected')->get();
 
         return response()->json(['reservations'=>$reservations],200);
     }
@@ -182,7 +182,7 @@ class OwnerController extends Controller
         if($user->id!=$apartment->owner_id){
             return response()->json(['message'=>'you can only view your apartments reservations'],403);
         }
-        $reservations=$apartment->reservations()->where('status','edit_requested')->with('user.profile')->get();
+        $reservations=$apartment->reservations()->where('status','edit_requested')->get();
 
         return response()->json(['reservations'=>$reservations],200);
     }
@@ -193,7 +193,7 @@ class OwnerController extends Controller
         if($user->id!=$apartment->owner_id){
             return response()->json(['message'=>'you can only view your apartments reservations'],403);
         }
-        $reservations=$apartment->reservations()->where('status','cancel_requested')->with('user.profile')->get();
+        $reservations=$apartment->reservations()->where('status','cancel_requested')->get();
 
         return response()->json(['reservations'=>$reservations],200);
     }
