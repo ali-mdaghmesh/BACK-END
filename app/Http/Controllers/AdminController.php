@@ -62,6 +62,8 @@ class AdminController extends Controller
         return response()->json(['message'=>'success','users'=>$profiles],200);
     }
 
+    
+
 
 
 

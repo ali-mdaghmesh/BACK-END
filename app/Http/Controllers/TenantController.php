@@ -7,8 +7,7 @@ use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use function Pest\Laravel\get;
-use function Pest\Laravel\json;
+
 
 class TenantController extends Controller
 {
@@ -18,7 +17,7 @@ class TenantController extends Controller
     {
         $user = Auth::user();
         $reservations = Reservation::where('tenant_id', $user->id)->with('apartment')->get();
-        return response()->json(['massege' => 'succeded', 'reservations' => $reservations]);
+        return response()->json(['reservations' => $reservations]);
     }
 
 
@@ -30,8 +29,15 @@ class TenantController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
 
         ]);
-
         $apartment = Apartment::findOrFail($request->apartment_id);
+       
+        if(Reservation::where('tenant_id',Auth::user()->id)
+                        ->where('end_date',$request->end_date)
+                        ->where('start_date',$request->start_date)
+                       ->exists()){
+            return response()->json(['message'=>'you got reservation with same date ',409]);
+             }
+
         $reservation = $apartment->reservations()->create([
             'tenant_id' => $request->user()->id,
             'user_id' => $apartment->owner_id,
@@ -41,14 +47,6 @@ class TenantController extends Controller
         ]);
 
         return response()->json(['message' => 'Reservation created successfully', 'reservation' => $reservation], 201);
-    }
-
-    function hasConflict(Apartment $apartment, $startDate, $endDate)
-    {
-        return $apartment->reservations()
-            ->where('start_date', '<=', $endDate)
-            ->where('end_date', '>=', $startDate)
-            ->exists();
     }
 
     function getReservationPrice($startDate, $endDate, $pricePerNight)
@@ -68,74 +66,61 @@ class TenantController extends Controller
     {
         $reservation = Reservation::findOrFail($reservation_id);
         if ($reservation->tenant_id != $request->user()->id) {
-            return response()->json(['message' => 'you can only cancel your own reservations'], 403);
+            return response()->json(['message' => 'you can only cancel your own reservations', 403]);
         }
 
         $request->validate([
-            'edit_start_date' => 'required|date|after_or_equal:today',
-            'edit_end_date' => 'required|date|after_or_equal:edit_start_date',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
-        if ($reservation->status === 'pending') {
-            $reservation->start_date = $request->edit_start_date;
-            $reservation->end_date = $request->edit_end_date;
-            $reservation->total_price = $this->getReservationPrice($request->start_date, $request->end_date, $reservation->apartment->price);
-            $reservation->status = 'pending';
+        switch($reservation->status){
+            case 'pending':
+            $reservation->start_date = $request->start_date;
+            $reservation->end_date = $request->end_date;
             $reservation->save();
             return response()->json(['message' => 'Reservation updated successfully', 'reservation' => $reservation], 200);
-        }
-        if ($reservation->status == 'edit_requested') {
-            return response()->json(['message' => 'your previous edit request is still pending'], 403);
-        }
-        if ($reservation->status == 'cancel_requested') {
-            return response()->json(['message' => 'you can not edit a reservation with a pending cancel request'], 403);
-        }
-        if ($reservation->status == 'cancelled') {
-            return response()->json(['message' => 'you can not edit a cancelled reservation'], 403);
-        }
-        if ($reservation->status == 'rejected') {
-            return response()->json(['message' => 'you can not edit a rejected reservation'], 403);
-        }
-        if ($reservation->status == 'approved') {
-            $reservation->edit_start_date = $request->start_date;
-            $reservation->edit_end_date = $request->end_date;
-            $reservation->status = 'edit_requested';
+
+            case 'approved':
+            $reservation->edit_start_date=$request->start_date; 
+            $reservation->edit_end_date=$request->end_date;
+            $reservation->status='edit_requested';
             $reservation->save();
             return response()->json(['message' => 'Edit request sent successfully', 'reservation' => $reservation], 200);
-        }
+    
+            default:
+                return response()->json(['message'=>'this reservation cannot be edited',403]);
+                
+           }
+
+    
 
     }
 
 
     function cancelReservation(Request $request, $reservation_id)
     {
-        $reservation = Reservation::findOrfail($reservation_id);
+        $reservation = Reservation::findOrFail($reservation_id);
         if ($reservation->tenant_id != $request->user()->id) {
             return response()->json(['message' => 'you can only cancel your own reservations'], 403);
         }
-        if ($reservation->status == 'approved') {
-            $reservation->status = 'cancel_requested';
-            $reservation->save();
-            return response()->json(['message' => 'Cancel request sent successfully', 'reservation' => $reservation], 200);
-        }
-        if ($reservation->status == 'cancelled') {
-            return response()->json(['message' => 'the reservation is already cancelled'], 403);
-        }
-        if ($reservation->status == 'pending') {
-            $reservation->status = 'cancelled';
-            $reservation->save();
-            return response()->json(['message' => 'Reservation cancelled successfully', 'reservation' => $reservation], 200);
-        }
-        if ($reservation->status == 'rejected') {
-            return response()->json(['message' => 'you can not cancel a rejected reservation'], 403);
-        }
-        if ($reservation->status == 'cancel_requested') {
-            return response()->json(['message' => 'your previous cancel request is still pending'], 403);
+        switch($reservation->status){
+            case 'pending':
+              $reservation->status='cancelled';
+               $reservation->save();
+            return response()->json(['message'=>'reservation cancelled successfully','reservation'=>$reservation],200);
+          
+            case 'approved':
+               $reservation->status='cancel_requested'; 
+               $reservation->save();
+               return response()->json(['message'=>'cancel request sent successfully','reservation'=>$reservation],200);
+
+            default:
+                return response()->json(['message'=>'this reservation cannot be cancelled',403]);
+
+
         }
 
-        if ($reservation->status == 'edit_requested') {
-            return response()->json(['message' => 'you can not cancel a reservation with a pending edit request'], 403);
-        }
 
     }
 
