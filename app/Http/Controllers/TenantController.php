@@ -73,24 +73,21 @@ class TenantController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
+        $status = $reservation->status;
 
-        switch($reservation->status){
-            case 'pending':
+        if($status==='pending'){
             $reservation->start_date = $request->start_date;
             $reservation->end_date = $request->end_date;
             $reservation->save();
             return response()->json(['message' => 'Reservation updated successfully', 'reservation' => $reservation], 200);
-
-            case 'approved':
+        }else if($status==='approved'){
             $reservation->edit_start_date=$request->start_date; 
             $reservation->edit_end_date=$request->end_date;
             $reservation->status='edit_requested';
             $reservation->save();
             return response()->json(['message' => 'Edit request sent successfully', 'reservation' => $reservation], 200);
-    
-            default:
-                return response()->json(['message'=>'this reservation cannot be edited',403]);
-                
+        }else{
+            return response()->json(['message'=>'this reservation cannot be edited',403]);  
            }
 
     
@@ -104,21 +101,17 @@ class TenantController extends Controller
         if ($reservation->tenant_id != $request->user()->id) {
             return response()->json(['message' => 'you can only cancel your own reservations'], 403);
         }
-        switch($reservation->status){
-            case 'pending':
+        $status=$reservation->status;
+          if($status==='pending'){
               $reservation->status='cancelled';
                $reservation->save();
             return response()->json(['message'=>'reservation cancelled successfully','reservation'=>$reservation],200);
-          
-            case 'approved':
+            }else if($status==='approved'){
                $reservation->status='cancel_requested'; 
                $reservation->save();
                return response()->json(['message'=>'cancel request sent successfully','reservation'=>$reservation],200);
-
-            default:
+        }else{
                 return response()->json(['message'=>'this reservation cannot be cancelled',403]);
-
-
         }
 
 
