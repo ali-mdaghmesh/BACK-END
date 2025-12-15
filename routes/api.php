@@ -45,8 +45,8 @@ Route::middleware(["auth:sanctum", "verified"])->group(function () {
     Route::put('/owner/reservations/pending/handle/{id}', [OwnerController::class, 'handlePendingReservation']);
     Route::put('/owner/reservations/cancel/handle/{id}', [OwnerController::class, 'handleCancelReservation']);
     Route::put('/owner/reservations/edit/handle/{id}', [OwnerController::class, 'handleEditeReservation']);
-    Route::get('/owner/reservations/{id}', [OwnerController::class, 'getApartmentReservations']); 
-    Route::get('/owner/reservations/apartment/{id}', [OwnerController::class, 'getReservationsByStatus']);
+    Route::get('/owner/apartment/reservations/{id}', [OwnerController::class, 'getApartmentReservations']); 
+    Route::get('/owner/apartment/reservations/status/{id}', [OwnerController::class, 'getReservationsByStatus']);
 
 
 

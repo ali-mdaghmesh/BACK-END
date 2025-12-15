@@ -81,7 +81,7 @@ class OwnerController extends Controller
                 }
                 $reservation->start_date=$reservation->edit_start_date;
                 $reservation->end_date=$reservation->edit_end_date;
-  
+                $reservation->price=$this->getReservationPrice($reservation->start_date,$reservation->end_date,$reservation->apartment->price);
                 $reservation->edit_start_date=null;
                 $reservation->edit_end_date=null;
                 $reservation->status='approved';
@@ -107,7 +107,7 @@ class OwnerController extends Controller
         $end = date_create($endDate);
         $nights = $start->diff($end)->days;
 
-        return $nights * $pricePerNight;
+        return $nights*$pricePerNight;
     }
 
     function getApartmentReservations(Request $request,$apartment_id){
@@ -130,9 +130,7 @@ class OwnerController extends Controller
 
     $reservations = $apartment->reservations()->where('status', $request->status)->get();
 
-    return response()->json([
-        'reservations' => $reservations
-    ], 200);
+    return response()->json(['reservations' => $reservations], 200);
 }
 
 }
