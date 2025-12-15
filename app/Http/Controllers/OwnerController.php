@@ -110,7 +110,7 @@ class OwnerController extends Controller
         return $nights * $pricePerNight;
     }
 
-    function getReservations(Request $request,$apartment_id){
+    function getApartmentReservations(Request $request,$apartment_id){
         $user=Auth::user();
         $apartment=Apartment::findOrFail($apartment_id);
         if($user->id!=$apartment->owner_id){
