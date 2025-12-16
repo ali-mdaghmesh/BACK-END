@@ -19,5 +19,12 @@ class Apartment extends Model
     public function reservations(){
         return $this->hasMany(Reservation::class);
     }
-    
+
+    public function apartmentRatings()
+    {
+        return $this->hasMany(ApartmentRating::class);
+    }
+
+
+
 }

@@ -11,18 +11,14 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory,HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'phone_number',
-        'password',
-    ];
-
+    protected $guarded = ['id'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -51,10 +47,24 @@ class User extends Authenticatable
         return $this->hasOne(Profile::class);
     }
 
-    public function apartments(){
-        return $this->hasMany(Apartment::class, 'owner_id');
-    }
-    public function reservations(){
+    public function reservations()
+    {
         return $this->hasMany(Reservation::class);
     }
+
+    public function apartments()
+    {
+        return $this->hasMany(Apartment::class, 'owner_id');
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function ratings()
+    {
+    return $this->hasMany(ApartmentRating::class, 'tenant_id');
+    }
+
 }

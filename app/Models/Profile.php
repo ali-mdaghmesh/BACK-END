@@ -14,11 +14,7 @@ class Profile extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function apartments()
-    {
 
-        return $this->hasMany(Apartment::class, 'owner_id', 'user_id');
-
-    }
+    
 
 }
