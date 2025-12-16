@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('apartment_id')->constrained()->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');
-            $table->string('status')->default('pending')->comment('pending, approved, rejected,cancelled'
-                                                                 ,'edit_requested','cancel_requested');
+            $table->string('status')->default('pending')->comment('pending, approved, rejected,cancelled',
+                                                                 'done','expired' ,'edit_requested','cancel_requested');
             $table->decimal('total_price', 10, 2);
             $table->date('edit_start_date')->nullable();
             $table->date('edit_end_date')->nullable();
