@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Apartment;
+use App\Models\ApartmentRating;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +31,7 @@ class TenantController extends Controller
 
         ]);
         $apartment = Apartment::findOrFail($request->apartment_id);
-       
+
         if(Reservation::where('tenant_id',Auth::user()->id)
                         ->where('end_date',$request->end_date)
                         ->where('start_date',$request->start_date)
@@ -81,16 +82,16 @@ class TenantController extends Controller
             $reservation->save();
             return response()->json(['message' => 'Reservation updated successfully', 'reservation' => $reservation], 200);
         }else if($status==='approved'){
-            $reservation->edit_start_date=$request->start_date; 
+            $reservation->edit_start_date=$request->start_date;
             $reservation->edit_end_date=$request->end_date;
             $reservation->status='edit_requested';
             $reservation->save();
             return response()->json(['message' => 'Edit request sent successfully', 'reservation' => $reservation], 200);
         }else{
-            return response()->json(['message'=>'this reservation cannot be edited',403]);  
+            return response()->json(['message'=>'this reservation cannot be edited',403]);
            }
 
-    
+
 
     }
 
@@ -107,7 +108,7 @@ class TenantController extends Controller
                $reservation->save();
             return response()->json(['message'=>'reservation cancelled successfully','reservation'=>$reservation],200);
             }else if($status==='approved'){
-               $reservation->status='cancel_requested'; 
+               $reservation->status='cancel_requested';
                $reservation->save();
                return response()->json(['message'=>'cancel request sent successfully','reservation'=>$reservation],200);
         }else{
@@ -117,7 +118,93 @@ class TenantController extends Controller
 
     }
 
+    public function filterApartments(Request $request)
+    {
+        $apartments = Apartment::query();
+
+        $apartments->when($request->filled('city'), function ($q) use ($request) {
+            $q->where('city', $request->city);
+        });
+
+
+        $apartments->when($request->filled('province'), function ($q) use ($request) {
+            $q->where('province', $request->province);
+        });
+
+        $this->applyRangeFilter($apartments, $request, 'price', 'min_price', 'max_price');
+        $this->applyRangeFilter($apartments, $request, 'rooms', 'min_rooms', 'max_rooms');
+
+        $apartments->when($request->filled('query'), function ($q) use ($request) {
+            $q->where(function ($sub) use ($request) {
+                $sub->where('city', 'like', '%' . $request->query . '%')
+                    ->orWhere('province', 'like', '%' . $request->query . '%')
+                    ->orWhere('description', 'like', '%' . $request->query . '%');
+            });
+        });
+
+
+        return $apartments->get();
+    }
+
+
+    private function applyRangeFilter($query, $request, $column, $minKey, $maxKey)
+    {
+        if ($request->filled($minKey) && $request->filled($maxKey)) {
+            $query->whereBetween($column, [$request->$minKey, $request->$maxKey]);
+        } elseif ($request->filled($minKey)) {
+            $query->where($column, '>=', $request->$minKey);
+        } elseif ($request->filled($maxKey)) {
+            $query->where($column, '<=', $request->$maxKey);
+        }
+    }
+    public function rateApartment(Request $request, $apartmentId)
+    {
+        $user = Auth::user();
+        $request->validate([
+            'rating' => 'required|numeric|min:1|max:5'
+        ]);
+
+        $apartment = Apartment::find($apartmentId);
+
+        if(!$apartment) {
+            return response()->json([
+                'message' => 'Apartment not found'
+            ], 404);
+        }
+        
+        $rating = ApartmentRating::where('apartment_id', $apartment->id)
+            ->where('tenant_id', $user->id)
+            ->first();
+
+        if ($rating) {
+            $apartment->ratings_sum -= $rating->rating;
+            $rating->update(['rating' => $request->rating]);
+            $apartment->ratings_sum += $request->rating;
+        } else {
+            $rating = ApartmentRating::create([
+                'apartment_id' => $apartment->id,
+                'tenant_id' => $user->id,
+                'rating' => $request->rating
+            ]);
+
+            $apartment->ratings_sum += $request->rating;
+            $apartment->ratings_count += 1;
+        }
+
+
+        $apartment->rating = $apartment->ratings_sum / $apartment->ratings_count;
+        $apartment->save();
+
+        return response()->json([
+            'message' => 'You have rated this apartment',
+            'rating' => $rating->rating,
+            'rate_avg' => $apartment->rate_avg,
+            'ratings_count' => $apartment->ratings_count
+        ] , 200);
+    }
+
 
 }
+
 
 

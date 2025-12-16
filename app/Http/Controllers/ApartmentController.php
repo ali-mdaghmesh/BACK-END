@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
 class ApartmentController extends Controller
 {
     /**
@@ -14,14 +15,14 @@ class ApartmentController extends Controller
      */
     public function index()
     {
-        $user = Auth::user()->profile;
-        $apartments = $user->apartments()->with('images')->get();
+        $user = Auth::user();
+                $apartments = Apartment::where('owner_id', $user->id)->with('images')->get();
 
         return response()->json($apartments);
 
     }
 
-
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -29,7 +30,7 @@ class ApartmentController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->profile->role !== 'owner') {
+        if ($user->role !== 'owner') {
             return response()->json([
                 'message' => 'Only owners can create apartments'
             ], 403);
@@ -58,15 +59,21 @@ class ApartmentController extends Controller
     public function show($apartment_id)
     {
         $user = Auth::user();
-        $apartment = Apartment::findOrFail($apartment_id);
+        $apartment = Apartment::find($apartment_id);
 
-        if ($user->profile->role !== 'owner') {
+        if (!$apartment) {
+            return response()->json([
+                'message' => 'Apartment not found'
+            ], 404);
+        }
+
+        if ($user->role !== 'owner') {
             return response()->json([
                 'message' => 'Only owners can view apartments'
             ], 403);
         }
 
-        if (!$user->profile->verified) {
+        if (!$user->verified) {
             return response()->json([
                 'message' => 'Your profile is not verified. You cannot view apartments.'
             ], 403);
@@ -89,18 +96,25 @@ class ApartmentController extends Controller
      */
     public function update(Request $request, $apartment_id)
     {
-        $apartment = Apartment::findOrFail($apartment_id);
+        $user = Auth::user();
 
-      $user =  Auth::user();
+        $apartment = Apartment::find($apartment_id);
+
+        if (!$apartment) {
+            return response()->json([
+                'message' => 'Apartment not found'
+            ], 404);
+        }
 
 
-        if ($user->profile->role !== 'owner') {
+
+        if ($user->role !== 'owner') {
             return response()->json([
                 'message' => 'Only owners can update apartments'
             ], 403);
         }
 
-        if (!$user->profile->verified) {
+        if (!$user->verified) {
             return response()->json([
                 'message' => 'Your profile is not verified. You cannot update apartments.'
             ], 403);
@@ -111,6 +125,8 @@ class ApartmentController extends Controller
                 'message' => 'You can only update your own apartments'
             ], 403);
         }
+
+
 
         $validated = $request->validate([
                 'city' => 'sometimes|string|max:255',
@@ -133,15 +149,21 @@ class ApartmentController extends Controller
     {
         $user = Auth::user();
 
-        $apartment = Apartment::findOrFail($apartment_id);
+        $apartment = Apartment::find($apartment_id);
 
-        if ($user->profile->role !== 'owner') {
+        if (!$apartment) {
+            return response()->json([
+                'message' => 'Apartment not found'
+            ], 404);
+        }
+
+        if ($user->role !== 'owner') {
             return response()->json([
                 'message' => 'Only owners can delete apartments'
             ], 403);
         }
 
-        if (!$user->profile->verified) {
+        if (!$user->verified) {
             return response()->json([
                 'message' => 'Your profile is not verified. You cannot delete apartments.'
             ], 403);
@@ -160,8 +182,8 @@ class ApartmentController extends Controller
 
     }
 
-    
 
-    
+
+
 
 }
