@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ApartmentImagesController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantController;
@@ -16,8 +17,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::Post('/register', [UserController::class, 'register']);
-Route::Post('/login', [UserController::class, 'login']);
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::middleware(["auth:sanctum", "verified"])->group(function () {
@@ -36,16 +37,20 @@ Route::middleware(["auth:sanctum", "verified"])->group(function () {
     Route::put('apartmentsImages/{id}', [ApartmentImagesController::class, 'update']);
     Route::delete('apartmentsImages/{id}', [ApartmentImagesController::class, 'destroy']);
     Route::get('apartmentsImages/{id}', [ApartmentImagesController::class, 'show']);
-   
+
     Route::get('/tenant/reservations', [TenantController::class, 'getTenantReservations']);
-    Route::post('/tenant/reservations/create', [TenantController::class, 'createReservation']);        
+    Route::post('/tenant/reservations/create', [TenantController::class, 'createReservation']);
     Route::put('/tenant/reservations/edit/{id}', [TenantController::class, 'editReservation']);
     Route::put('/tenant/reservations/cancel/{id}', [TenantController::class, 'cancelReservation']);
+
+    Route::get('favorites', [FavoriteController::class, 'getFavorites']);
+    Route::post('favorites/{id}', [FavoriteController::class, 'addToFavorites']);
+    Route::delete('favorites/{id}', [FavoriteController::class, 'removeFromFavorites']);
 
     Route::put('/owner/reservations/pending/handle/{id}', [OwnerController::class, 'handlePendingReservation']);
     Route::put('/owner/reservations/cancel/handle/{id}', [OwnerController::class, 'handleCancelReservation']);
     Route::put('/owner/reservations/edit/handle/{id}', [OwnerController::class, 'handleEditeReservation']);
-    Route::get('/owner/apartment/reservations/{id}', [OwnerController::class, 'getApartmentReservations']); 
+    Route::get('/owner/apartment/reservations/{id}', [OwnerController::class, 'getApartmentReservations']);
     Route::get('/owner/apartment/reservations/status/{id}', [OwnerController::class, 'getReservationsByStatus']);
 
 
