@@ -15,7 +15,7 @@ class VerifiedMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(!$request->user()->profile->verified){ 
+        if(!$request->user()->verified){
             return response()->json(['message' => 'unverified']);
         }
         return $next($request);
