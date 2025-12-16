@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('phone_number')->unique();
             $table->string('password');
+            $table->string('role')->comment('admin/owner/tenant');
+            $table->boolean('verified')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
