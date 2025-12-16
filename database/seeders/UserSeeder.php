@@ -53,7 +53,7 @@ class UserSeeder extends Seeder
         Profile::create([
             'user_id' => $user->id,
             'first_name' => 'Ibrahim',
-            'last_name' => 'Al-Kalb',
+            'last_name' => 'Al-Ibrahim',
             'date_of_birth' => '1980-10-02',
             'role' => 'owner',
             'verified' => true,
