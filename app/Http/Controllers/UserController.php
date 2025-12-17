@@ -21,12 +21,14 @@ class UserController extends Controller
             'profile_image_url' => 'required|image|mimes:webp,jpg,jpeg,png,gif|max:10000',
             'identity_image_url' => 'required|image|mimes:webp,jpg,jpeg,png,gif|max:10000',
             'role' => 'required|string|max:50',
+
         ]);
 
 
         $user = User::create([
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
+            'role' => $request->role
         ]);
 
         $profileImagePath = $request->file('profile_image_url')->store('profiles', 'public');
@@ -38,7 +40,6 @@ class UserController extends Controller
             'date_of_birth' => $request->date_of_birth,
             'profile_image_url' => $profileImagePath,
             'identity_image_url' => $identityImagePath,
-            'role' => $request->role
         ]);
 
         return response()->json([
