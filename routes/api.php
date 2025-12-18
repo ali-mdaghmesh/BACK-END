@@ -21,10 +21,15 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
+Route::middleware("auth:sanctum")->group(function () {
+    Route::get('/filter', [ProfileController::class, 'filterApartments']);
+
+
+});
 
 Route::middleware(["auth:sanctum", "verified"])->group(function () {
 
-  Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile', [ProfileController::class, 'update']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
     Route::get('/profile', [ProfileController::class, 'show']);
 
@@ -50,6 +55,9 @@ Route::middleware(["auth:sanctum", "verified", "owner"])->group(function () {
     Route::get('/owner/apartment/reservations/{id}', [OwnerController::class, 'getApartmentReservations']);
     Route::get('/owner/apartment/reservations/status/{id}', [OwnerController::class, 'getReservationsByStatus']);
 
+    Route::get('favorites', [FavoriteController::class, 'getFavorites']);
+    Route::post('favorites/{id}', [FavoriteController::class, 'addToFavorites']);
+    Route::delete('favorites/{id}', [FavoriteController::class, 'removeFromFavorites']);
 
 
 });
@@ -61,9 +69,6 @@ Route::middleware(["auth:sanctum", "verified", "tenant"])->group(function () {
     Route::put('/tenant/reservations/edit/{id}', [TenantController::class, 'editReservation']);
     Route::put('/tenant/reservations/cancel/{id}', [TenantController::class, 'cancelReservation']);
 
-    Route::get('favorites', [FavoriteController::class, 'getFavorites']);
-    Route::post('favorites/{id}', [FavoriteController::class, 'addToFavorites']);
-    Route::delete('favorites/{id}', [FavoriteController::class, 'removeFromFavorites']);
 
 });
 

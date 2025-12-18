@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Apartment;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,7 @@ class ProfileController extends Controller
      */
     public function show()
     {
-        
+
         $profile = Auth::user()->profile;
 
         return response()->json([
@@ -61,4 +62,44 @@ class ProfileController extends Controller
         return response()->json(['message' => 'Profile deleted successfully'], 200);
     }
 
+
+    public function filterApartments(Request $request)
+    {
+        $apartments = Apartment::query();
+
+        $apartments->when($request->filled('city'), function ($q) use ($request) {
+            $q->where('city', $request->city);
+        });
+
+
+        $apartments->when($request->filled('province'), function ($q) use ($request) {
+            $q->where('province', $request->province);
+        });
+
+        $this->applyRangeFilter($apartments, $request, 'price', 'min_price', 'max_price');
+        $this->applyRangeFilter($apartments, $request, 'rooms', 'min_rooms', 'max_rooms');
+
+        $apartments->when($request->filled('query'), function ($q) use ($request) {
+            $q->where(function ($sub) use ($request) {
+                $sub->where('city', 'like', '%' . $request->query . '%')
+                    ->orWhere('province', 'like', '%' . $request->query . '%')
+                    ->orWhere('description', 'like', '%' . $request->query . '%');
+            });
+        });
+
+
+        return $apartments->get();
+    }
+
+
+    private function applyRangeFilter($query, $request, $column, $minKey, $maxKey)
+    {
+        if ($request->filled($minKey) && $request->filled($maxKey)) {
+            $query->whereBetween($column, [$request->$minKey, $request->$maxKey]);
+        } elseif ($request->filled($minKey)) {
+            $query->where($column, '>=', $request->$minKey);
+        } elseif ($request->filled($maxKey)) {
+            $query->where($column, '<=', $request->$maxKey);
+        }
+    }
 }
