@@ -8,6 +8,7 @@ use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
 class ProfileController extends Controller
 {
     /**
@@ -62,44 +63,50 @@ class ProfileController extends Controller
         return response()->json(['message' => 'Profile deleted successfully'], 200);
     }
 
-
     public function filterApartments(Request $request)
     {
+        if(!$request){
+              $apartments = Apartment::get();
+            return response()->json($apartments , 200);
+        }
         $apartments = Apartment::query();
 
         $apartments->when($request->filled('country'), function ($q) use ($request) {
-            $q->where('country', $request->country);
+            $q->where('country', $request->input('country'));
         });
-
 
         $apartments->when($request->filled('province'), function ($q) use ($request) {
-            $q->where('province', $request->province);
+            $q->where('province', $request->input('province'));
         });
 
-        $this->applyRangeFilter($apartments, $request, 'price', 'min_price', 'max_price');
+        if ($request->has(['min_price', 'max_price']))
+
+            $this->applyRangeFilter($apartments, $request, 'price', 'min_price', 'max_price');
+        else
+            $apartments->when($request->filled('price'), function ($q) use ($request) {
+                $q->where('price', '=', $request->input('price'));
+            });
+
+
+        if($request->has(['min_rooms'  , 'max_rooms']))
         $this->applyRangeFilter($apartments, $request, 'rooms', 'min_rooms', 'max_rooms');
-
-        // $apartments->when($request->filled('query'), function ($q) use ($request) {
-        //     $q->where(function ($sub) use ($request) {
-        //         $sub->where('country', 'like', '%' . $request->query . '%')
-        //             ->orWhere('province', 'like', '%' . $request->query . '%')
-        //             ->orWhere('description', 'like', '%' . $request->query . '%');
-        //     });
-        // });
-
+        else
+            $apartments->when($request->filled('rooms'), function ($q) use ($request) {
+                $q->where('rooms', '=', $request->input('rooms'));});
 
         return $apartments->get();
     }
 
-
-    private function applyRangeFilter($query, $request, $column, $minKey, $maxKey)
+    protected function applyRangeFilter($query, Request $request, $column, $minField, $maxField)
     {
-        if ($request->filled($minKey) && $request->filled($maxKey)) {
-            $query->whereBetween($column, [$request->$minKey, $request->$maxKey]);
-        } elseif ($request->filled($minKey)) {
-            $query->where($column, '>=', $request->$minKey);
-        } elseif ($request->filled($maxKey)) {
-            $query->where($column, '<=', $request->$maxKey);
+        if ($request->filled($minField)) {
+            $query->where($column, '>=', $request->input($minField));
+        }
+
+        if ($request->filled($maxField)) {
+            $query->where($column, '<=', $request->input($maxField));
         }
     }
+
+
 }
