@@ -67,8 +67,8 @@ class ProfileController extends Controller
     {
         $apartments = Apartment::query();
 
-        $apartments->when($request->filled('city'), function ($q) use ($request) {
-            $q->where('city', $request->city);
+        $apartments->when($request->filled('country'), function ($q) use ($request) {
+            $q->where('country', $request->country);
         });
 
 
@@ -79,13 +79,13 @@ class ProfileController extends Controller
         $this->applyRangeFilter($apartments, $request, 'price', 'min_price', 'max_price');
         $this->applyRangeFilter($apartments, $request, 'rooms', 'min_rooms', 'max_rooms');
 
-        $apartments->when($request->filled('query'), function ($q) use ($request) {
-            $q->where(function ($sub) use ($request) {
-                $sub->where('city', 'like', '%' . $request->query . '%')
-                    ->orWhere('province', 'like', '%' . $request->query . '%')
-                    ->orWhere('description', 'like', '%' . $request->query . '%');
-            });
-        });
+        // $apartments->when($request->filled('query'), function ($q) use ($request) {
+        //     $q->where(function ($sub) use ($request) {
+        //         $sub->where('country', 'like', '%' . $request->query . '%')
+        //             ->orWhere('province', 'like', '%' . $request->query . '%')
+        //             ->orWhere('description', 'like', '%' . $request->query . '%');
+        //     });
+        // });
 
 
         return $apartments->get();

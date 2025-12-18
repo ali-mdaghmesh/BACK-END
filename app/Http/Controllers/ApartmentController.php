@@ -22,7 +22,14 @@ class ApartmentController extends Controller
 
     }
 
-    
+    public function showApartments(){
+        $user = Auth::user();
+
+        $apartments = Apartment::get();
+        return response()->json($apartments);
+
+
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -37,7 +44,7 @@ class ApartmentController extends Controller
         }
 
         $validated = $request->validate([
-            'city' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
             'province' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'rooms' => 'required|integer|min:1|max:100',
@@ -129,7 +136,7 @@ class ApartmentController extends Controller
 
 
         $validated = $request->validate([
-                'city' => 'sometimes|string|max:255',
+                'country' => 'sometimes|string|max:255',
                 'province' => 'sometimes|string|max:255',
                 'description' => 'sometimes|string|max:255',
                 'rooms' => 'sometimes|Integer|max:100',
@@ -181,7 +188,6 @@ class ApartmentController extends Controller
         ], 200);
 
     }
-
 
 
 

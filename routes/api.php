@@ -23,6 +23,7 @@ Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanc
 
 Route::middleware("auth:sanctum")->group(function () {
     Route::get('/filter', [ProfileController::class, 'filterApartments']);
+    Route::get('/getApartments', [ApartmentController::class, 'showApartments']);
 
 
 });

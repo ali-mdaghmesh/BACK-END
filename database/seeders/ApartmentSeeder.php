@@ -17,7 +17,7 @@ class ApartmentSeeder extends Seeder
         $apartment = Apartment::create([
 
             'owner_id' => 3,
-            'city' =>'Syria',
+            'country' =>'Syria',
             'province'=>'Damascus',
             'description'=>'A beautiful apartment in the heart of the city.',
             'rooms'=>'4',
