@@ -24,6 +24,7 @@ Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanc
 Route::middleware("auth:sanctum")->group(function () {
     Route::get('/filter', [ProfileController::class, 'filterApartments']);
     Route::get('/getApartments', [ApartmentController::class, 'showApartments']);
+    Route::get('/profile', [ProfileController::class, 'show']);
 
 
 });
@@ -32,7 +33,6 @@ Route::middleware(["auth:sanctum", "verified"])->group(function () {
 
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
-    Route::get('/profile', [ProfileController::class, 'show']);
 
 
 });
