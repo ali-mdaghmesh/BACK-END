@@ -21,11 +21,17 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
+
 Route::middleware(["auth:sanctum", "verified"])->group(function () {
 
-    Route::put('/profile', [ProfileController::class, 'update']);
+  Route::put('/profile', [ProfileController::class, 'update']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
     Route::get('/profile', [ProfileController::class, 'show']);
+
+
+});
+
+Route::middleware(["auth:sanctum", "verified", "owner"])->group(function () {
 
     Route::post('/apartments', [ApartmentController::class, 'store']);
     Route::put('/apartments/{id}', [ApartmentController::class, 'update']);
@@ -38,6 +44,18 @@ Route::middleware(["auth:sanctum", "verified"])->group(function () {
     Route::delete('apartmentsImages/{id}', [ApartmentImagesController::class, 'destroy']);
     Route::get('apartmentsImages/{id}', [ApartmentImagesController::class, 'show']);
 
+    Route::put('/owner/reservations/pending/handle/{id}', [OwnerController::class, 'handlePendingReservation']);
+    Route::put('/owner/reservations/cancel/handle/{id}', [OwnerController::class, 'handleCancelReservation']);
+    Route::put('/owner/reservations/edit/handle/{id}', [OwnerController::class, 'handleEditeReservation']);
+    Route::get('/owner/apartment/reservations/{id}', [OwnerController::class, 'getApartmentReservations']);
+    Route::get('/owner/apartment/reservations/status/{id}', [OwnerController::class, 'getReservationsByStatus']);
+
+
+
+});
+
+Route::middleware(["auth:sanctum", "verified", "tenant"])->group(function () {
+
     Route::get('/tenant/reservations', [TenantController::class, 'getTenantReservations']);
     Route::post('/tenant/reservations/create', [TenantController::class, 'createReservation']);
     Route::put('/tenant/reservations/edit/{id}', [TenantController::class, 'editReservation']);
@@ -46,14 +64,6 @@ Route::middleware(["auth:sanctum", "verified"])->group(function () {
     Route::get('favorites', [FavoriteController::class, 'getFavorites']);
     Route::post('favorites/{id}', [FavoriteController::class, 'addToFavorites']);
     Route::delete('favorites/{id}', [FavoriteController::class, 'removeFromFavorites']);
-
-    Route::put('/owner/reservations/pending/handle/{id}', [OwnerController::class, 'handlePendingReservation']);
-    Route::put('/owner/reservations/cancel/handle/{id}', [OwnerController::class, 'handleCancelReservation']);
-    Route::put('/owner/reservations/edit/handle/{id}', [OwnerController::class, 'handleEditeReservation']);
-    Route::get('/owner/apartment/reservations/{id}', [OwnerController::class, 'getApartmentReservations']);
-    Route::get('/owner/apartment/reservations/status/{id}', [OwnerController::class, 'getReservationsByStatus']);
-
-
 
 });
 

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 Artisan::command('reservations:update-ended', function () {
 
     $done = DB::table('reservations')
-        ->where('end_date', '<', Carbon::today())
+        ->where('end_date','<=', Carbon::today())
         ->where('status', 'approved')
         ->update(['status' => 'done']);
 
