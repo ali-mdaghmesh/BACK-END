@@ -41,9 +41,11 @@ class UserController extends Controller
             'profile_image_url' => $profileImagePath,
             'identity_image_url' => $identityImagePath,
         ]);
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'User registered successfully',
+            'token' => $token
         ], 201);
     }
 
