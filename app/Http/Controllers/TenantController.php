@@ -22,15 +22,14 @@ class TenantController extends Controller
     }
 
 
-    function createReservation(Request $request)
+    function createReservation(Request $request,$id)
     {
         $request->validate([
-            'apartment_id' => 'required|exists:apartments,id',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
 
         ]);
-        $apartment = Apartment::findOrFail($request->apartment_id);
+        $apartment = Apartment::findOrFail($id);
 
         if(Reservation::where('tenant_id',Auth::user()->id)
                         ->where('end_date',$request->end_date)
@@ -138,10 +137,22 @@ class TenantController extends Controller
             ->where('tenant_id', $user->id)
             ->first();
 
+
+         $reservations = Reservation::where('user_id', $user->id);
+
+        $hasReservation = Reservation::where('tenant_id', $user->id)
+            ->where('apartment_id', $apartment->id)
+            ->where('status' , 'done')->exists();
+
+        if (!$hasReservation) {
+            return response()->json([
+                'message' => 'You can only rate apartments you have reserved'
+            ], 403);
+        }
+
+
         if ($rating) {
-            $apartment->ratings_sum -= $rating->rating;
-            $rating->update(['rating' => $request->rating]);
-            $apartment->ratings_sum += $request->rating;
+           return response()->json('You have already rated this apartment',409);
         } else {
             $rating = ApartmentRating::create([
                 'apartment_id' => $apartment->id,
@@ -160,8 +171,6 @@ class TenantController extends Controller
         return response()->json([
             'message' => 'You have rated this apartment',
             'rating' => $rating->rating,
-            'rate_avg' => $apartment->rate_avg,
-            'ratings_count' => $apartment->ratings_count
         ] , 200);
     }
 

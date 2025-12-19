@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('apartments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
-            $table->string('city');
+            $table->string('country');
             $table->string('province');
             $table->string('description')->nullable();
             $table->Integer('rooms')->default(1);
             $table->decimal('price' , 10 ,2);
+            $table->Integer('ratings_count')->default(0);
+            $table->Integer('ratings_sum')->default(0);
+            $table->decimal('rating' ,3 , 2)->default(0);
             $table->timestamps();
         });
     }
