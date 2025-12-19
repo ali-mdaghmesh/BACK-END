@@ -18,9 +18,9 @@ class OwnerMiddleware
     {
 
         if(Auth::user()->role!=='owner'){
-            return response()->json(['message'=>'just owners allowed'],403);
+            return response()->json(['message'=>'Just owners are allowed to do this action'],403);
         }
         return $next($request);
-       
+
     }
 }

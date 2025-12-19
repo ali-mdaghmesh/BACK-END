@@ -17,7 +17,7 @@ class TenantMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if(Auth::user()->role!=='tenant'){
-            return response()->json(['message'=>'just tenants allowed'],403);
+            return response()->json(['message'=>'Just tenants are allowed to do this action'],403);
         }
         return $next($request);
     }
