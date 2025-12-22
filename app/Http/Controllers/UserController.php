@@ -14,7 +14,7 @@ class UserController extends Controller
 
         $request->validate([
             'phone_number' => 'required|string|max:15|unique:users,phone_number',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'date_of_birth' => 'required|date',
