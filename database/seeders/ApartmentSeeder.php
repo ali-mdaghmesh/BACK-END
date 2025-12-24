@@ -25,9 +25,32 @@ class ApartmentSeeder extends Seeder
 
           ]);
 
+
         ApartmentImages::create(['apartment_id' => $apartment->id, 'image_path' => 'images/apartments/apartment11.jpg',]);
         ApartmentImages::create(['apartment_id' => $apartment->id, 'image_path' => 'images/apartments/apartment12.jpg',]);
         ApartmentImages::create(['apartment_id' => $apartment->id, 'image_path' => 'images/apartments/apartment13.jpg',]);
+
+        $apartment = Apartment::create([
+
+            'owner_id' => 3,
+            'country' => 'Syria',
+            'province' => 'Homs',
+            'description' => 'Palace',
+            'rooms' => '10',
+            'price' => '25000',
+
+        ]);
+
+        $apartment = Apartment::create([
+
+            'owner_id' => 3,
+            'country' => 'America',
+            'province' => 'Washington',
+            'description' => 'White House',
+            'rooms' => '15',
+            'price' => '250000',
+
+        ]);
 
     }
 }
