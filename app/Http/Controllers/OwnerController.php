@@ -4,8 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Apartment;
 use App\Models\Reservation;
+use App\Models\User;
+use App\Notifications\AcceptReservationNotification;
+use App\Notifications\HandleCancelReservationNotification;
+use App\Notifications\HandleEditReservationNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
+use function Pest\Laravel\json;
 
 class OwnerController extends Controller
 {
@@ -13,24 +19,29 @@ class OwnerController extends Controller
     function handlePendingReservation(Request $request, $reservation_id){
 
     $reservation = Reservation::findOrFail($reservation_id);
+    $tenant=User::findOrFail($reservation->tenant_id); 
+    $status=$reservation->status; 
 
         $request->validate([
-        'action' => 'required|in:approved,rejected',
+        'action' => 'required|in:accept,reject',
     ]);
 
-    if ($reservation->status !== 'pending') {
-        return response()->json(['message' => 'Only pending reservations can be processed'],409);
-    }
-
-    if($this->hasConflict($reservation->apartment, $reservation->start_date,$reservation->end_date)&&$request->action==='approved'){
+   if($status=='pending'){
+    if($request->action==='accept'){
+    if($this->hasConflict($reservation->apartment, $reservation->start_date,$reservation->end_date)){
         return response()->json(['message'=>'the reservation dates conflict with an existing approved reservation'],409);
     }
-
-
-    $reservation->status = $request->action;
+    $reservation->status ='approved';
     $reservation->save();
-
-    return response()->json(['message' => "Reservation $request->action successfully",'reservation' => $reservation], 200);
+    $tenant->notify(new AcceptReservationNotification());
+    return response()->json(['message'=>'the reservation accepted successfully'],200); 
+   }
+    }else if($status=='reject'){
+        $reservation->status='rejected'; 
+        $reservation->save(); 
+        return response()->json(['message'=>'the reservation rejected successfully'],200);
+   }
+   return response()->json(['message'=>'this reservation cannot be handled'],400); 
 }
 
 
@@ -47,6 +58,7 @@ class OwnerController extends Controller
     function handleCancelReservation(Request $request,$reservation_id){
         $reservation=Reservation::findOrFail($reservation_id); 
         $status=$reservation->status;
+        $tenant=User::findOrFail($reservation->tenant_id);
         $request->validate([
             'action'=>'required|in:accept,reject',
         ]);
@@ -55,25 +67,27 @@ class OwnerController extends Controller
             if($request->action==='accept'){
                 $reservation->status='cancelled';
                 $reservation->save();
+                $tenant->notify(new HandleCancelReservationNotification('accepted'));
                 return response()->json(['message'=>'reservation cancelled successfully','reservation'=>$reservation],200);
             }
             if($request->action==='reject'){
                 $reservation->status='approved';
                 $reservation->save();
+                $tenant->notify(new HandleCancelReservationNotification('rejected')); 
                 return response()->json(['message'=>'reservation cancelling rejected successfully','reservation'=>$reservation],200);
             }
     }
-        return response()->json(['message'=>'invalid case'],400);
+        return response()->json(['message'=>'this reservation cannot be canceled'],400);
     
     }
 
     function handleEditReservation(Request $request,$reservation_id){
         $reservation=Reservation::findOrFail($reservation_id); 
-        
         $status=$reservation->status;
         $request->validate([
             'action'=>'required|in:accept,reject',
         ]);
+        $tenant=User::findOrFail($reservation->tenant_id);
         if($status==='edit_requested'){
             if($request->action==='accept'){
                 if($this->hasConflict($reservation->apartment, $reservation->edit_start_date,$reservation->edit_end_date)){
@@ -81,17 +95,19 @@ class OwnerController extends Controller
                 }
                 $reservation->start_date=$reservation->edit_start_date;
                 $reservation->end_date=$reservation->edit_end_date;
-                $reservation->price=$this->getReservationPrice($reservation->start_date,$reservation->end_date,$reservation->apartment->price);
+                $reservation->total_price=$this->getReservationPrice($reservation->start_date,$reservation->end_date,$reservation->apartment->price);
                 $reservation->edit_start_date=null;
                 $reservation->edit_end_date=null;
                 $reservation->status='approved';
                 $reservation->save();
+                $tenant->notify(new HandleEditReservationNotification('accepted'));
                 return response()->json(['message'=>'reservation edited successfully','reservation'=>$reservation],200);
             }else if($request->action==='reject'){
                 $reservation->edit_start_date=null;
                 $reservation->edit_end_date=null;
                 $reservation->status='approved';
                 $reservation->save();
+                $tenant->notify(new HandleEditReservationNotification('rejected')); 
                 return response()->json(['message'=>'reservation edit rejected successfully','reservation'=>$reservation],200);
         }
     }
