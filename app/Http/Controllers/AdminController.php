@@ -12,16 +12,16 @@ class AdminController extends Controller
 
 
     function findUsers(Request $request){
+        $phone = $request->input('phone_number');
 
-        $query = $request->input('query');
 
-  $users=User::with('profile')->where('phone_number','like','%'.$query.'%')
-                            ->orWhere('first_name','like','%'.$query.'%')
-                            ->orWhere('last_name','like','%'.$query.'%')
-                            ->get();
+        $users = User::with('profile')
+            ->when($phone, fn($q) => $q->where('phone_number', 'like', "%$phone%"))
+         ->get();
+
 
         if ($users->isEmpty()) {
-        return response()->json(['message'=>'no sush users found'],404);
+        return response()->json(['message'=>'no such user found'],404);
     }
     return response()->json(['message'=>'success','users'=>$users],200);
     }
