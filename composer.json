@@ -11,6 +11,8 @@
     "require": {
         "php": "^8.2",
         "illuminate/routing": "*",
+        "kreait/laravel-firebase": "^6.2",
+        "laravel-notification-channels/fcm": "^6.0",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1"

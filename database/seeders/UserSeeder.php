@@ -29,6 +29,8 @@ class UserSeeder extends Seeder
             'identity_image_url' => 'images/identities/identity1.jpg',
             'profile_image_url' => 'images/profiles/profile1.jpg',
         ]);
+        $user->deviceTokens()->create([
+            'fcm_token' => 'fake_fcm1']);
 
         $user = User::factory()->create([
             'phone_number' => '1234567891',
@@ -46,6 +48,8 @@ class UserSeeder extends Seeder
             'identity_image_url' => 'images/identities/identity2.jpg',
             'profile_image_url' => 'images/profiles/profile2.jpg',
         ]);
+        $user->deviceTokens()->create([
+            'fcm_token' => 'fake_fcm2']);
 
         $user = User::factory()->create([
             'phone_number' => '1234567892',
@@ -63,5 +67,7 @@ class UserSeeder extends Seeder
             'identity_image_url' => 'images/identities/identity3.jpg',
             'profile_image_url' => 'images/profiles/profile3.jpg',
         ]);
+        $user->deviceTokens()->create([
+            'fcm_token' => 'fake_fcm3']);
     }
 }

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Apartment;
 use App\Models\ApartmentRating;
 use App\Models\Reservation;
+use App\Models\User;
+use App\Notifications\CancelReservationNotification;
+use App\Notifications\EditReservationNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,6 +35,7 @@ class TenantController extends Controller
         $apartment = Apartment::findOrFail($id);
 
         if(Reservation::where('tenant_id',Auth::user()->id)
+                        ->where('apartment_id',$id)
                         ->where('end_date',$request->end_date)
                         ->where('start_date',$request->start_date)
                        ->exists()){
@@ -58,13 +62,14 @@ class TenantController extends Controller
         $end = date_create($endDate);
         $nights = $start->diff($end)->days;
 
-        return $nights * $pricePerNight;
+        return $nights*$pricePerNight;
     }
 
 
     function editReservation(Request $request, $reservation_id)
     {
         $reservation = Reservation::findOrFail($reservation_id);
+           $owner=User::findOrFail($reservation->user_id); 
         if ($reservation->tenant_id != $request->user()->id) {
             return response()->json(['message' => 'you can only cancel your own reservations', 403]);
         }
@@ -85,12 +90,10 @@ class TenantController extends Controller
             $reservation->edit_end_date=$request->end_date;
             $reservation->status='edit_requested';
             $reservation->save();
-            return response()->json(['message' => 'Edit request sent successfully', 'reservation' => $reservation], 200);
-        }else{
-            return response()->json(['message'=>'this reservation cannot be edited',403]);
-           }
-
-
+            $owner->notify(new EditReservationNotification());
+            return response()->json(['message'=>'edit request sent successfully', 'reservation' => $reservation], 200);
+        }
+         return response()->json(['message'=>'this reservation cannot be edited',403]);
 
     }
 
@@ -98,6 +101,7 @@ class TenantController extends Controller
     function cancelReservation(Request $request, $reservation_id)
     {
         $reservation = Reservation::findOrFail($reservation_id);
+        $owner=User::findOrFail($reservation->user_id); 
         if ($reservation->tenant_id != $request->user()->id) {
             return response()->json(['message' => 'you can only cancel your own reservations'], 403);
         }
@@ -109,6 +113,7 @@ class TenantController extends Controller
             }else if($status==='approved'){
                $reservation->status='cancel_requested';
                $reservation->save();
+               $owner->notify(new CancelReservationNotification());
                return response()->json(['message'=>'cancel request sent successfully','reservation'=>$reservation],200);
         }else{
                 return response()->json(['message'=>'this reservation cannot be cancelled',403]);

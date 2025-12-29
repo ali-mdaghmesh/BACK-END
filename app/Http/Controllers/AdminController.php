@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Profile;
 use App\Models\User;
+use App\Notifications\VerificationNotification;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 
@@ -64,6 +65,7 @@ class AdminController extends Controller
         }
         $user->verified=true;
         $user->save();
+        $user->notify(new VerificationNotification()); 
         return response()->json(['message'=>'user verified successfuly','user'=>$user],200);
     }
 
