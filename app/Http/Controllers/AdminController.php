@@ -46,6 +46,9 @@ class AdminController extends Controller
         if(!$user){
             return response()->json(['message'=>'user not found'],404);
         }
+        if($user->role=='admin'){
+            return response()->json(['message'=>'cannot delete admin user'],403);
+        }
         $user->tokens()->delete();
         $user->delete();
         return response()->json(['message'=>'user deleted successfully'],200);
