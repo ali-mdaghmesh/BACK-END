@@ -36,11 +36,12 @@ class OwnerController extends Controller
     $tenant->notify(new AcceptReservationNotification());
     return response()->json(['message'=>'the reservation accepted successfully'],200); 
    }
-    }else if($status=='reject'){
+   else if($request->action==='reject'){
         $reservation->status='rejected'; 
         $reservation->save(); 
         return response()->json(['message'=>'the reservation rejected successfully'],200);
    }
+}
    return response()->json(['message'=>'this reservation cannot be handled'],400); 
 }
 

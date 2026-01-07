@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use App\Notifications\CancelReservationNotification;
 use App\Notifications\EditReservationNotification;
+use App\Notifications\NewReservationNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,6 +34,7 @@ class TenantController extends Controller
 
         ]);
         $apartment = Apartment::findOrFail($id);
+        $owner=User::findOrFail($apartment->owner_id); 
 
         if(Reservation::where('tenant_id',Auth::user()->id)
                         ->where('apartment_id',$id)
@@ -49,6 +51,7 @@ class TenantController extends Controller
             'end_date' => $request->end_date,
             'total_price' => $this->getReservationPrice($request->start_date, $request->end_date, $apartment->price),
         ]);
+        $owner->notify(new NewReservationNotification($apartment)); 
 
         return response()->json(['message' => 'Reservation created successfully', 'reservation' => $reservation], 201);
     }

@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ApartmentImagesController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantController;
@@ -23,10 +24,14 @@ Route::post('/login', [UserController::class, 'login']);
 //done
 Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
+
 Route::middleware("auth:sanctum")->group(function () {
     Route::get('/filter', [ProfileController::class, 'filterApartments']);
     Route::get('/getApartments', [ApartmentController::class, 'showApartments']);
     Route::get('/profile', [ProfileController::class, 'show']);
+
+    Route::get('/notifications',[NotificationController::class,'getNotifications']);
+    Route::delete('/notifications/{id}',[NotificationController::class,'deleteNotification']); 
 
 
 });

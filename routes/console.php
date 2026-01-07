@@ -18,12 +18,13 @@ Artisan::command('reservations:update-ended', function () {
         ->where('status', '!=', 'expired')   
         ->where('status', '!=', 'rejected')       
         ->where('status', '!=', 'cancelled')
-        ->where('end_date', '<', Carbon::today())
+        ->where('start_date', '<=', Carbon::today())
         ->update(['status' => 'expired']);
 
     $this->info("successfully updated $done reservations to done status");
     $this->info("successfully updated $expired reservations to expired status");
 });
+
 
 
 Schedule::command('reservations:update-ended')->everyMinute();
