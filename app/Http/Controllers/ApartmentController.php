@@ -21,15 +21,20 @@ class ApartmentController extends Controller
         return response()->json($apartments);
 
     }
+    public function showApartments()
+    {
+        $apartments = Apartment::with('images')->get();
 
-    public function showApartments(){
-        $user = Auth::user();
+    
+        $apartments->map(function ($apartment) {
+            $apartment->images->map(function ($img) {
+                $img->url = asset('storage/' . $img->path);
+            });
+        });
 
-        $apartments = Apartment::get();
         return response()->json($apartments);
-
-
     }
+
     /**
      * Store a newly created resource in storage.
      */

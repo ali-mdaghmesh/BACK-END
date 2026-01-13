@@ -66,37 +66,45 @@ class ProfileController extends Controller
 
     public function filterApartments(Request $request)
     {
-        if(!$request){
-              $apartments = Apartment::get();
-            return response()->json($apartments , 200);
-        }
-        $apartments = Apartment::query();
 
-        $apartments->when($request->filled('province'), function ($q) use ($request) {
+        $apartments = Apartment::with('images');
 
+           $apartments->when($request->filled('province'), function ($q) use ($request) {
             $province = Province::from($request->input('province'));
-            $q->where('province', $province->value); 
+            $q->where('province', $province->value);
         });
 
 
-
-        if ($request->has(['min_price', 'max_price']))
-
+        if ($request->has(['min_price', 'max_price'])) {
             $this->applyRangeFilter($apartments, $request, 'price', 'min_price', 'max_price');
-        else
+        } else {
             $apartments->when($request->filled('price'), function ($q) use ($request) {
-                $q->where('price', '=', $request->input('price'));
+                $q->where('price', $request->price);
             });
+        }
 
 
-        if($request->has(['min_rooms'  , 'max_rooms']))
-        $this->applyRangeFilter($apartments, $request, 'rooms', 'min_rooms', 'max_rooms');
-        else
+        if ($request->has(['min_rooms', 'max_rooms'])) {
+            $this->applyRangeFilter($apartments, $request, 'rooms', 'min_rooms', 'max_rooms');
+        } else {
             $apartments->when($request->filled('rooms'), function ($q) use ($request) {
-                $q->where('rooms', '=', $request->input('rooms'));});
+                $q->where('rooms', $request->rooms);
+            });
+        }
 
-        return $apartments->get();
+
+        $apartments = $apartments->get();
+
+
+        $apartments->map(function ($apartment) {
+            $apartment->images->map(function ($img) {
+                $img->url = asset('storage/' . $img->path);
+            });
+        });
+
+        return response()->json($apartments, 200);
     }
+
 
     protected function applyRangeFilter($query, Request $request, $column, $minField, $maxField)
     {
