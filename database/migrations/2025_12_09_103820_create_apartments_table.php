@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Province;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
             $table->string('country');
-            $table->string('province');
+            $table->enum('province', array_column(Province::cases(), 'value'));
             $table->string('description')->nullable();
             $table->Integer('rooms')->default(1);
             $table->decimal('price' , 10 ,2);
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->Integer('ratings_sum')->default(0);
             $table->decimal('rating' ,3 , 2)->default(0);
             $table->timestamps();
+
         });
     }
 

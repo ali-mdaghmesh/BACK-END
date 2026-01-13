@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Province;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Apartment;
 use App\Models\Profile;
@@ -71,13 +72,13 @@ class ProfileController extends Controller
         }
         $apartments = Apartment::query();
 
-        $apartments->when($request->filled('country'), function ($q) use ($request) {
-            $q->where('country', $request->input('country'));
+        $apartments->when($request->filled('province'), function ($q) use ($request) {
+
+            $province = Province::from($request->input('province'));
+            $q->where('province', $province->value); 
         });
 
-        $apartments->when($request->filled('province'), function ($q) use ($request) {
-            $q->where('province', $request->input('province'));
-        });
+
 
         if ($request->has(['min_price', 'max_price']))
 

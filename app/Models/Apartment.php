@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Province;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,6 +10,8 @@ class Apartment extends Model
 {
     protected $guarded = ['id'];
     use HasFactory;
+
+    protected $casts = ['province' => Province::class,];
 
     public function owner(){
         return $this->belongsTo(User::class, 'owner_id');
