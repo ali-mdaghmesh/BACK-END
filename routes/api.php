@@ -34,7 +34,7 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::delete('/notifications/{id}',[NotificationController::class,'deleteNotification']); 
 
 
-});
+}); 
 
 Route::middleware(["auth:sanctum", "verified"])->group(function () {
 

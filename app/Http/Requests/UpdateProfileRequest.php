@@ -11,7 +11,7 @@ class UpdateProfileRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -30,3 +30,4 @@ class UpdateProfileRequest extends FormRequest
         ];
     }
 }
+ 

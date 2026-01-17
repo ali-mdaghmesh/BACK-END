@@ -41,7 +41,7 @@ class TenantController extends Controller
                         ->where('end_date',$request->end_date)
                         ->where('start_date',$request->start_date)
                        ->exists()){
-            return response()->json(['message'=>'you got reservation with same date ',409]);
+            return response()->json(['message'=>'you got reservation with same date '],409);
              }
 
         $reservation = $apartment->reservations()->create([
@@ -96,7 +96,7 @@ class TenantController extends Controller
             $owner->notify(new EditReservationNotification());
             return response()->json(['message'=>'edit request sent successfully', 'reservation' => $reservation], 200);
         }
-         return response()->json(['message'=>'this reservation cannot be edited',403]);
+         return response()->json(['message'=>'this reservation cannot be edited'],403);
 
     }
 

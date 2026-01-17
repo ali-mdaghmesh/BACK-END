@@ -42,11 +42,6 @@ class ApartmentController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'owner') {
-            return response()->json([
-                'message' => 'Only owners can create apartments'
-            ], 403);
-        }
 
         $validated = $request->validate([
             'country' => 'required|string|max:255',
@@ -79,17 +74,8 @@ class ApartmentController extends Controller
             ], 404);
         }
 
-        if ($user->role !== 'owner') {
-            return response()->json([
-                'message' => 'Only owners can view apartments'
-            ], 403);
-        }
-
-        if (!$user->verified) {
-            return response()->json([
-                'message' => 'Your profile is not verified. You cannot view apartments.'
-            ], 403);
-        }
+    
+      
 
         if ($apartment->owner_id !== $user->id) {
             return response()->json([
@@ -119,19 +105,6 @@ class ApartmentController extends Controller
         }
 
 
-
-        if ($user->role !== 'owner') {
-            return response()->json([
-                'message' => 'Only owners can update apartments'
-            ], 403);
-        }
-
-        if (!$user->verified) {
-            return response()->json([
-                'message' => 'Your profile is not verified. You cannot update apartments.'
-            ], 403);
-        }
-
         if ($apartment->owner_id !== $user->id) {
             return response()->json([
                 'message' => 'You can only update your own apartments'
@@ -142,7 +115,7 @@ class ApartmentController extends Controller
 
         $validated = $request->validate([
                 'country' => 'sometimes|string|max:255',
-                'province' => 'sometimes|string|max:255',
+                'province' => 'sometimes|max:255',
                 'description' => 'sometimes|string|max:255',
                 'rooms' => 'sometimes|Integer|max:100',
                  'price' => 'sometimes|numeric|min:0'
@@ -169,17 +142,6 @@ class ApartmentController extends Controller
             ], 404);
         }
 
-        if ($user->role !== 'owner') {
-            return response()->json([
-                'message' => 'Only owners can delete apartments'
-            ], 403);
-        }
-
-        if (!$user->verified) {
-            return response()->json([
-                'message' => 'Your profile is not verified. You cannot delete apartments.'
-            ], 403);
-        }
 
         if ($apartment->owner_id !== $user->id) {
             return response()->json([
